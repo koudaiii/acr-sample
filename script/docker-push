@@ -11,10 +11,14 @@ ACR_REGISTRY=${ACR_REGISTRY:-acrsamplekoudaiii.azurecr.io}
 IMAGE_NAME=${IMAGE_NAME:-acrsamplekoudaiii}
 IMAGE_TAG=${IMAGE_TAG:-$(git rev-parse HEAD)}
 
-# Login to ACR if credentials are provided
-if [ -n "${ACR_USERNAME}" ] && [ -n "${ACR_PASSWORD}" ]; then
+# Login to ACR if credentials are provided (skip in CI where az acr login is used)
+if [ -n "${ACR_USERNAME}" ] && [ -n "${ACR_PASSWORD}" ] && [ -z "${GITHUB_ACTIONS}" ]; then
   echo "Logging in to Azure Container Registry..."
   echo ${ACR_PASSWORD} | docker login ${ACR_REGISTRY} -u ${ACR_USERNAME} --password-stdin
+elif [ -n "${GITHUB_ACTIONS}" ]; then
+  echo "Using Azure CLI authentication (az acr login) from GitHub Actions..."
+else
+  echo "Warning: No ACR authentication method available."
 fi
 
 echo "Pushing Docker image..."
