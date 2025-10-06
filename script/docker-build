@@ -8,7 +8,7 @@ fi
 
 # Default values
 ACR_REGISTRY=${ACR_REGISTRY:-acrsamplekoudaiii.azurecr.io}
-IMAGE_NAME=${IMAGE_NAME:-acrsample}
+IMAGE_NAME=${IMAGE_NAME:-acrsamplekoudaiii}
 IMAGE_TAG=${IMAGE_TAG:-$(git rev-parse HEAD)}
 
 echo "Building Docker image..."

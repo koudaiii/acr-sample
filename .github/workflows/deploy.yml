@@ -28,7 +28,7 @@ jobs:
           ACR_REGISTRY: ${{ secrets.ACR_REGISTRY }}
           ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
           ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
-          IMAGE_NAME: acrsample
+          IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
           IMAGE_TAG: ${{ github.sha }}
         run: script/docker-push
 
@@ -42,7 +42,7 @@ jobs:
       - name: Deploy to Azure Container Apps
         env:
           ACR_REGISTRY: ${{ secrets.ACR_REGISTRY }}
-          IMAGE_NAME: acrsample
+          IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
           IMAGE_TAG: ${{ github.sha }}
           RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
           CONTAINER_APP_NAME: ${{ secrets.AZURE_CONTAINER_APP_NAME }}
