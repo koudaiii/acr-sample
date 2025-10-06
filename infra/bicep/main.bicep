@@ -12,6 +12,9 @@ targetScope = 'subscription'
 @description('Azure region for resources')
 param location string = 'japaneast'
 
+@description('Suffix to append to resource names for uniqueness')
+param suffix string = dateTimeAdd(utcNow(), 'PT0H', 'yyyyMMddHHmmss')
+
 @description('Resource group name')
 param resourceGroupName string = 'acr-sample-rg'
 
@@ -43,7 +46,7 @@ param tags object = {
 module resourceGroup 'br/public:avm/res/resources/resource-group:0.4.0' = {
   name: '${uniqueString(deployment().name, location)}-resource-group'
   params: {
-    name: resourceGroupName
+    name: '${resourceGroupName}${suffix}'
     location: location
     tags: tags
   }
@@ -55,19 +58,19 @@ module resourceGroup 'br/public:avm/res/resources/resource-group:0.4.0' = {
 
 module resources './resources.bicep' = {
   name: '${uniqueString(deployment().name, location)}-resources'
-  scope: az.resourceGroup(resourceGroupName)
+  scope: az.resourceGroup('${resourceGroupName}${suffix}')
   params: {
     location: location
-    acrName: acrName
-    containerAppName: containerAppName
-    containerAppEnvironmentName: containerAppEnvironmentName
-    logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
+    acrName: '${acrName}${suffix}'
+    containerAppName: '${containerAppName}${suffix}'
+    containerAppEnvironmentName: '${containerAppEnvironmentName}${suffix}'
+    logAnalyticsWorkspaceName: '${logAnalyticsWorkspaceName}${suffix}'
     tags: tags
   }
   dependsOn: [
     resourceGroup
   ]
-} 
+}
 
 // ============================================================================
 // Outputs

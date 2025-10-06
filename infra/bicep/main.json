@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.38.5.1644",
-      "templateHash": "9157211270980937314"
+      "templateHash": "15185629331721387221"
     }
   },
   "parameters": {
@@ -14,6 +14,13 @@
       "defaultValue": "japaneast",
       "metadata": {
         "description": "Azure region for resources"
+      }
+    },
+    "suffix": {
+      "type": "string",
+      "defaultValue": "[dateTimeAdd(utcNow(), 'PT0H', 'yyyyMMdd-HHmmss')]",
+      "metadata": {
+        "description": "Suffix to append to resource names for uniqueness"
       }
     },
     "resourceGroupName": {
@@ -78,7 +85,7 @@
         "mode": "Incremental",
         "parameters": {
           "name": {
-            "value": "[parameters('resourceGroupName')]"
+            "value": "[format('{0}-{1}', parameters('resourceGroupName'), parameters('suffix'))]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -549,7 +556,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "[format('{0}-resources', uniqueString(deployment().name, parameters('location')))]",
-      "resourceGroup": "[parameters('resourceGroupName')]",
+      "resourceGroup": "[format('{0}-{1}', parameters('resourceGroupName'), parameters('suffix'))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -560,16 +567,16 @@
             "value": "[parameters('location')]"
           },
           "acrName": {
-            "value": "[parameters('acrName')]"
+            "value": "[format('{0}{1}', parameters('acrName'), parameters('suffix'))]"
           },
           "containerAppName": {
-            "value": "[parameters('containerAppName')]"
+            "value": "[format('{0}-{1}', parameters('containerAppName'), parameters('suffix'))]"
           },
           "containerAppEnvironmentName": {
-            "value": "[parameters('containerAppEnvironmentName')]"
+            "value": "[format('{0}-{1}', parameters('containerAppEnvironmentName'), parameters('suffix'))]"
           },
           "logAnalyticsWorkspaceName": {
-            "value": "[parameters('logAnalyticsWorkspaceName')]"
+            "value": "[format('{0}-{1}', parameters('logAnalyticsWorkspaceName'), parameters('suffix'))]"
           },
           "tags": {
             "value": "[parameters('tags')]"
@@ -582,7 +589,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.38.5.1644",
-              "templateHash": "16623495802334603695"
+              "templateHash": "8263194336304460088"
             }
           },
           "parameters": {
@@ -6575,7 +6582,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.38.5.1644",
-                      "templateHash": "3144021008150098341"
+                      "templateHash": "8001755337276152147"
                     }
                   },
                   "parameters": {
@@ -6641,6 +6648,9 @@
                           },
                           "workloadProfiles": {
                             "value": "[parameters('workloadProfiles')]"
+                          },
+                          "zoneRedundant": {
+                            "value": false
                           }
                         },
                         "template": {
@@ -7293,7 +7303,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.38.5.1644",
-                      "templateHash": "10457709630782090017"
+                      "templateHash": "5630837393140571928"
                     }
                   },
                   "parameters": {
@@ -7341,7 +7351,7 @@
                     },
                     "containerImage": {
                       "type": "string",
-                      "defaultValue": "acrsample:latest",
+                      "defaultValue": "nginx:latest",
                       "metadata": {
                         "description": "Container image name"
                       }
@@ -7362,7 +7372,7 @@
                     },
                     "ingressTargetPort": {
                       "type": "int",
-                      "defaultValue": 8000,
+                      "defaultValue": 80,
                       "metadata": {
                         "description": "Target port for ingress"
                       }
@@ -7456,7 +7466,7 @@
                             "value": [
                               {
                                 "name": "[parameters('containerAppName')]",
-                                "image": "[format('{0}/{1}', parameters('acrLoginServer'), parameters('containerImage'))]",
+                                "image": "[parameters('containerImage')]",
                                 "resources": {
                                   "cpu": "[json(parameters('containerCpu'))]",
                                   "memory": "[parameters('containerMemory')]"
@@ -8608,42 +8618,42 @@
       "metadata": {
         "description": "ACR login server"
       },
-      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('{0}-resources', uniqueString(deployment().name, parameters('location')))), '2025-04-01').outputs.acrLoginServer.value]"
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-{1}', parameters('resourceGroupName'), parameters('suffix'))), 'Microsoft.Resources/deployments', format('{0}-resources', uniqueString(deployment().name, parameters('location')))), '2025-04-01').outputs.acrLoginServer.value]"
     },
     "acrName": {
       "type": "string",
       "metadata": {
         "description": "ACR name"
       },
-      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('{0}-resources', uniqueString(deployment().name, parameters('location')))), '2025-04-01').outputs.acrName.value]"
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-{1}', parameters('resourceGroupName'), parameters('suffix'))), 'Microsoft.Resources/deployments', format('{0}-resources', uniqueString(deployment().name, parameters('location')))), '2025-04-01').outputs.acrName.value]"
     },
     "containerAppFqdn": {
       "type": "string",
       "metadata": {
         "description": "Container app FQDN"
       },
-      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('{0}-resources', uniqueString(deployment().name, parameters('location')))), '2025-04-01').outputs.containerAppFqdn.value]"
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-{1}', parameters('resourceGroupName'), parameters('suffix'))), 'Microsoft.Resources/deployments', format('{0}-resources', uniqueString(deployment().name, parameters('location')))), '2025-04-01').outputs.containerAppFqdn.value]"
     },
     "containerAppUrl": {
       "type": "string",
       "metadata": {
         "description": "Container app URL"
       },
-      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('{0}-resources', uniqueString(deployment().name, parameters('location')))), '2025-04-01').outputs.containerAppUrl.value]"
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-{1}', parameters('resourceGroupName'), parameters('suffix'))), 'Microsoft.Resources/deployments', format('{0}-resources', uniqueString(deployment().name, parameters('location')))), '2025-04-01').outputs.containerAppUrl.value]"
     },
     "logAnalyticsWorkspaceId": {
       "type": "string",
       "metadata": {
         "description": "Log Analytics workspace ID"
       },
-      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('{0}-resources', uniqueString(deployment().name, parameters('location')))), '2025-04-01').outputs.logAnalyticsWorkspaceId.value]"
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-{1}', parameters('resourceGroupName'), parameters('suffix'))), 'Microsoft.Resources/deployments', format('{0}-resources', uniqueString(deployment().name, parameters('location')))), '2025-04-01').outputs.logAnalyticsWorkspaceId.value]"
     },
     "containerAppEnvironmentId": {
       "type": "string",
       "metadata": {
         "description": "Container App Environment ID"
       },
-      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('{0}-resources', uniqueString(deployment().name, parameters('location')))), '2025-04-01').outputs.containerAppEnvironmentId.value]"
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-{1}', parameters('resourceGroupName'), parameters('suffix'))), 'Microsoft.Resources/deployments', format('{0}-resources', uniqueString(deployment().name, parameters('location')))), '2025-04-01').outputs.containerAppEnvironmentId.value]"
     }
   }
 }
