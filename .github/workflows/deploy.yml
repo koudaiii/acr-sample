@@ -9,6 +9,13 @@ permissions:
   id-token: write
   contents: read
 
+env:
+  ACR_REGISTRY: ${{ secrets.ACR_REGISTRY }}
+  ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
+  ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
+  IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
+  IMAGE_TAG: ${{ github.sha }}
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -17,19 +24,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build Docker image
-        env:
-          ACR_REGISTRY: ${{ secrets.ACR_REGISTRY }}
-          IMAGE_NAME: acrsample
-          IMAGE_TAG: ${{ github.sha }}
         run: script/docker-build
 
       - name: Push Docker image to ACR
-        env:
-          ACR_REGISTRY: ${{ secrets.ACR_REGISTRY }}
-          ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
-          ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
-          IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
-          IMAGE_TAG: ${{ github.sha }}
         run: script/docker-push
 
       - name: Log in to Azure with OIDC
@@ -41,9 +38,6 @@ jobs:
 
       - name: Deploy to Azure Container Apps
         env:
-          ACR_REGISTRY: ${{ secrets.ACR_REGISTRY }}
-          IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
-          IMAGE_TAG: ${{ github.sha }}
           RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
           CONTAINER_APP_NAME: ${{ secrets.AZURE_CONTAINER_APP_NAME }}
         run: |
