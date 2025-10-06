@@ -39,10 +39,36 @@ jobs:
 
       - name: Deploy to Azure Container Apps
         env:
-          RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
-          CONTAINER_APP_NAME: ${{ secrets.AZURE_CONTAINER_APP_NAME }}
+          RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
+          CONTAINER_APP_NAME: ${{ secrets.CONTAINER_APP_NAME }}
         run: |
           az containerapp update \
             --name ${CONTAINER_APP_NAME} \
             --resource-group ${RESOURCE_GROUP} \
             --image ${ACR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
+
+      - name: Get Container App URL
+        id: get-url
+        env:
+          RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
+          CONTAINER_APP_NAME: ${{ secrets.CONTAINER_APP_NAME }}
+        run: |
+          FQDN=$(az containerapp show \
+            --name ${CONTAINER_APP_NAME} \
+            --resource-group ${RESOURCE_GROUP} \
+            --query properties.configuration.ingress.fqdn \
+            --output tsv)
+          echo "fqdn=${FQDN}" >> $GITHUB_OUTPUT
+
+      - name: Generate Job Summary
+        run: |
+          echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Docker Image" >> $GITHUB_STEP_SUMMARY
+          echo "- **Registry:** ${ACR_REGISTRY}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image:** ${IMAGE_NAME}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tag:** ${IMAGE_TAG}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Full Image:** ${ACR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Deployment Endpoint" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL:** https://${{ steps.get-url.outputs.fqdn }}" >> $GITHUB_STEP_SUMMARY
