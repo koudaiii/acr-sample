@@ -25,6 +25,17 @@
 - Azure Container App（例: `acr-sample-app`）
 - リソースグループ（例: `acr-sample-rg`）
 
+#### インフラストラクチャのデプロイ
+
+`infra/` ディレクトリには、Azure Verified Modules (AVM) を使用した Terraform と Bicep のコードが含まれています。
+
+- **Terraform**: `infra/terraform/` - HashiCorp Terraform を使用したインフラ定義
+- **Bicep**: `infra/bicep/` - Azure Bicep を使用したインフラ定義
+
+どちらも同じインフラストラクチャを構築しますが、好みのツールを選択してください。
+
+詳細な使い方は [infra/README.md](./infra/README.md) を参照してください。
+
 ### GitHub Secrets
 
 - ACR_USERNAME
@@ -40,64 +51,26 @@ https://github.com/pocpp/login-with-openid-connect-oidc で生成
 ```console
 acr-sample/
 ├── Dockerfile
-├── requirements.txt
+├── .dockerignore
+├── .env.sample
+├── .python-version
+├── .gitignore
+├── LICENSE
+├── README.md
+├── pyproject.toml
+├── uv.lock
+├── script/
+│   ├── docker-build
+│   ├── docker-push
+│   ├── docker-server
+│   ├── bootstrap
+│   └── server
 ├── manage.py
 ├── myproject/
 │   └── settings.py
 └── .github/
     └── workflows/
-    └── deploy.yml
-```
-
-## 🐳 Dockerfile（例）
-
-```Dockerfile
-FROM python:3.13.7-slim
-
-WORKDIR /app
-
-# Set up uv
-
-COPY . .
-
-# CMD uv run 
-```
-
-## ⚙️ GitHub Actions ワークフロー（.github/workflows/deploy.yml）
-
-```yml
-name: Deploy Django to Azure Container Apps
-
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Log in to Azure
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Build and push Docker image
-        run: |
-          docker build -t acrsample:${{ github.sha }} .
-          echo "${{ secrets.ACR_PASSWORD }}" | docker login acrsamplekoudaiii.azurecr.io -u ${{ secrets.ACR_USERNAME }} --password-stdin
-          docker tag acrsample:${{ github.sha }} acrsamplekoudaiii.azurecr.io/acrsample:${{ github.sha }}
-          docker push acrsamplekoudaiii.azurecr.io/acrsample:${{ github.sha }}
-
-      - name: Deploy to Azure Container Apps
-        run: |
-          az containerapp update \
-            --name acr-sample-app \
-            --resource-group acr-sample-rg \
-            --image acrsamplekoudaiii.azurecr.io/acrsample:${{ github.sha }}
+        └── deploy.yml
 ```
 
 ## 📚 参考リンク
