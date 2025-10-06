@@ -1,0 +1,28 @@
+#!/bin/bash
+set -e
+
+echo "Bootstrapping acr-sample project..."
+
+# Check if uv is installed
+if ! command -v uv &> /dev/null; then
+    echo "uv is not installed. Installing uv..."
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    export PATH="$HOME/.cargo/bin:$PATH"
+fi
+
+echo "Installing Python dependencies with uv..."
+uv sync
+
+# Create .env file if it doesn't exist
+if [ ! -f .env ]; then
+    echo "Creating .env file from .env.sample..."
+    cp .env.sample .env
+    echo "Please update .env file with your configuration."
+fi
+
+# Run Django migrations
+echo "Running Django migrations..."
+uv run python manage.py migrate
+
+echo "Bootstrap complete!"
+echo "Run 'script/server' to start the development server."

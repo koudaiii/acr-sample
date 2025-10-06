@@ -1,0 +1,6 @@
+*
+!myproject/*.py
+!script/server
+!manage.py
+!pyproject.toml
+!uv.lock

@@ -1,0 +1,28 @@
+#!/bin/bash
+set -e
+
+# Load environment variables if .env file exists
+if [ -f .env ]; then
+  export $(cat .env | grep -v '^#' | xargs)
+fi
+
+# Default values
+ACR_REGISTRY=${ACR_REGISTRY:-acrsamplekoudaiii.azurecr.io}
+IMAGE_NAME=${IMAGE_NAME:-acrsample}
+IMAGE_TAG=${IMAGE_TAG:-$(git rev-parse HEAD)}
+
+# Login to ACR if credentials are provided
+if [ -n "${ACR_USERNAME}" ] && [ -n "${ACR_PASSWORD}" ]; then
+  echo "Logging in to Azure Container Registry..."
+  echo ${ACR_PASSWORD} | docker login ${ACR_REGISTRY} -u ${ACR_USERNAME} --password-stdin
+fi
+
+echo "Pushing Docker image..."
+echo "Registry: ${ACR_REGISTRY}"
+echo "Image: ${IMAGE_NAME}"
+echo "Tag: ${IMAGE_TAG}"
+
+docker push ${ACR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
+docker push ${ACR_REGISTRY}/${IMAGE_NAME}:latest
+
+echo "Docker image pushed successfully!"

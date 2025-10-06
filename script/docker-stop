@@ -1,0 +1,52 @@
+#!/bin/bash
+set -e
+
+# Load environment variables if .env file exists
+if [ -f .env ]; then
+  export $(cat .env | grep -v '^#' | xargs)
+fi
+
+# Default values
+ACR_REGISTRY=${ACR_REGISTRY:-acrsamplekoudaiii.azurecr.io}
+IMAGE_NAME=${IMAGE_NAME:-acrsample}
+IMAGE_TAG=${IMAGE_TAG:-latest}
+CONTAINER_NAME=${CONTAINER_NAME:-acr-sample-app}
+
+echo "Stopping Docker container and removing image..."
+
+# Stop and remove container if running
+if [ "$(docker ps -q -f name=${CONTAINER_NAME})" ]; then
+    echo "Stopping running container: ${CONTAINER_NAME}"
+    docker stop ${CONTAINER_NAME}
+    echo "✅ Container stopped successfully!"
+elif [ "$(docker ps -a -q -f name=${CONTAINER_NAME})" ]; then
+    echo "Container ${CONTAINER_NAME} is already stopped"
+else
+    echo "⚠️  Container ${CONTAINER_NAME} not found"
+fi
+
+# Remove container if it exists
+if [ "$(docker ps -a -q -f name=${CONTAINER_NAME})" ]; then
+    echo "Removing container: ${CONTAINER_NAME}"
+    docker rm ${CONTAINER_NAME}
+    echo "✅ Container removed successfully!"
+fi
+
+# Remove image if it exists
+IMAGE_FULL_NAME="${ACR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+if [ "$(docker images -q ${IMAGE_FULL_NAME})" ]; then
+    echo "Removing image: ${IMAGE_FULL_NAME}"
+    docker rmi ${IMAGE_FULL_NAME}
+    echo "✅ Image removed successfully!"
+else
+    echo "⚠️  Image ${IMAGE_FULL_NAME} not found"
+fi
+
+echo ""
+echo "🧹 Docker cleanup completed!"
+echo ""
+echo "📋 Useful commands:"
+echo "  - Start server:     script/docker-server"
+echo "  - Build image:      script/docker-build"
+echo "  - View containers:  docker ps -a"
+echo "  - View images:      docker images"

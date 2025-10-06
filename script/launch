@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# This script deploys the application to Azure Container Apps.
+# It assumes that the Docker image has already been built and pushed to Azure Container Registry (ACR).
+set -e
+
+SUFFIX=$(date +%Y%m%d-%H%M%S)
+DEPLOYMENT_NAME="acr-sample-deployment-$SUFFIX"
+LOCATION="japaneast"
+
+az login
+
+if az deployment sub validate \
+  --name "$DEPLOYMENT_NAME" \
+  --location "$LOCATION" \
+  --template-file infra/bicep/main.bicep \
+  --parameters infra/bicep/main.bicepparam; then
+  echo "Validation succeeded."
+else
+  echo "Validation failed."
+  exit 1
+fi
+
+# Confirm with the user before proceeding
+read -p "Do you want to proceed with the deployment? (y/n): " confirm
+if [[ "$confirm" != "y" ]]; then
+  echo "Deployment cancelled."
+  exit 0
+fi  
+
+az deployment sub create \
+  --name "$DEPLOYMENT_NAME" \
+  --location "$LOCATION" \
+  --template-file infra/bicep/main.bicep \
+  --parameters infra/bicep/main.bicepparam  \
+  --output json

@@ -1,0 +1,17 @@
+# Bicep build output
+*.json
+
+# Parameter files (except example)
+*.bicepparam
+!main.bicepparam
+
+# Temporary files
+*.tmp
+*.bak
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

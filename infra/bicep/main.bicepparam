@@ -1,0 +1,24 @@
+// ============================================================================
+// Parameters file for main.bicep
+// Copy this file and customize for your environment
+// ============================================================================
+
+using './main.bicep'
+
+// Azure region
+param location = 'japaneast'
+
+// Resource names
+param resourceGroupName = readEnvironmentVariable('ACR_SAMPLE_RESOURCE_GROUP_NAME','acr-sample-rg')
+param acrName = readEnvironmentVariable('ACR_SAMPLE_ACR_NAME','acrsamplekoudaiii')
+param containerAppName = readEnvironmentVariable('ACR_SAMPLE_CONTAINER_APP_NAME','acr-sample-app')
+param containerAppEnvironmentName = readEnvironmentVariable('ACR_SAMPLE_CONTAINER_APP_ENV_NAME','acr-sample-env')
+param logAnalyticsWorkspaceName = readEnvironmentVariable('ACR_SAMPLE_LOG_ANALYTICS_WORKSPACE_NAME','acr-sample-logs')
+
+// Tags
+param tags = {
+  environment: 'production'
+  project: 'acr-sample'
+  managed_by: 'bicep'
+  owner: 'your-name'
+}
